@@ -1,16 +1,19 @@
 from PIL import Image
 import customtkinter as ctk
 from tkinter import filedialog
+import pyperclip
 import generator
 import decoder
 
 class QRToolkit(ctk.CTk):
     def __init__(self): 
         super().__init__()
+        # Initializing and setting up the window
         self.title("QR Toolkit")
         self.geometry("900x600")
         self.minsize(800,500)
 
+        # Setting the theme and Color
         ctk.set_appearance_mode("Dark")
         ctk.set_default_color_theme("blue")
 
@@ -19,6 +22,7 @@ class QRToolkit(ctk.CTk):
         self.grid_rowconfigure(2, weight=0)
         self.grid_columnconfigure(0, weight=1)
 
+        # Creating Frames for the core Structure
         self.topbar = ctk.CTkFrame(
             self,
             height=60,
@@ -27,15 +31,50 @@ class QRToolkit(ctk.CTk):
         self.mainframe = ctk.CTkFrame(
             self
         )
-        self.mainframe.grid_rowconfigure(0, weight =1)
-        self.mainframe.grid_columnconfigure(0, weight=1)
-        self.mainframe.grid_columnconfigure(1, weight=2)
         self.controlPanel = ctk.CTkFrame(
             self.mainframe,
             corner_radius=10
         )
+        self.statusbar = ctk.CTkFrame(
+            self,
+            height=30,
+            corner_radius=0
+        )
+
+        # Aligning the core structure to the grid
+        self.topbar.grid(
+            row=0,
+            column=0,
+            sticky="ew"
+        )
+        self.mainframe.grid(
+            row=1,
+            column=0,
+            sticky="nsew"
+        )
+        self.controlPanel.grid(
+            row=0,
+            column=0,
+            padx=(15,8),
+            pady = 15,
+            sticky="nsew"
+        )
+        self.statusbar.grid(
+            row=2,
+            column=0,
+            sticky="ew"
+        )
+        
+        self.topbar.grid_columnconfigure(0, weight=1)
+
+        self.mainframe.grid_rowconfigure(0, weight =1)
+        self.mainframe.grid_columnconfigure(0, weight=1)
+        self.mainframe.grid_columnconfigure(1, weight=2)
+
         self.controlPanel.grid_columnconfigure(0, weight=1)
         self.controlPanel.grid_rowconfigure(1, weight=1)
+
+        # Creating and aligning the navigationBar
         self.navigationBar = ctk.CTkFrame(
             self.controlPanel,
             fg_color="transparent"
@@ -47,7 +86,10 @@ class QRToolkit(ctk.CTk):
             padx=10,
             pady=10
         )
+
         self.navigationBar.grid_columnconfigure((0,1), weight=1)
+
+        # Widgets for Navigation Bar
         self.generateTabButton = ctk.CTkButton(
             self.navigationBar,
             text="Generate",
@@ -59,6 +101,10 @@ class QRToolkit(ctk.CTk):
             padx=(0,5),
             sticky="ew"
         )
+        self.generateTabButton.configure(
+            fg_color="#1F6AA5"
+        )
+
         self.decodeTabButton = ctk.CTkButton(
             self.navigationBar,
             text="Decode",
@@ -70,17 +116,12 @@ class QRToolkit(ctk.CTk):
             padx=(5,0),
             sticky="ew"
         )
-        self.generateTabButton.configure(
-            fg_color="#1F6AA5"
-        )
         self.decodeTabButton.configure(
             fg_color="gray25"
         )
+
+        # Widgets for Control Panel
         self.generateFrame = ctk.CTkFrame(
-            self.controlPanel,
-            fg_color="transparent"
-        )
-        self.decodeFrame=ctk.CTkFrame(
             self.controlPanel,
             fg_color="transparent"
         )
@@ -89,44 +130,23 @@ class QRToolkit(ctk.CTk):
             column=0,
             sticky="nsew"
         )
+        self.generateFrame.grid_columnconfigure(0, weight=1)
+
+        self.decodeFrame=ctk.CTkFrame(
+            self.controlPanel,
+            fg_color="transparent"
+        )
         self.decodeFrame.grid(
             row=1,
             column=0,
             sticky="nsew"
         )
+        self.decodeFrame.grid_columnconfigure(0, weight=1)
+
+        # Widgets for MainFrame
         self.previewPanel = ctk.CTkFrame(
             self.mainframe,
             corner_radius=10
-        )
-        self.previewTitle = ctk.CTkLabel(
-            self.previewPanel,
-            text="Preview",
-            font=("Segoe UI", 22, "bold")
-        )
-        self.previewTitle.pack(pady=20)
-        self.previewLabel = ctk.CTkLabel(
-            self.previewPanel,
-            text="Generate a QR Code",
-            width=350,
-            height=350
-        )
-        self.previewLabel.pack(expand = True)
-        self.statusbar = ctk.CTkFrame(
-            self,
-            height=30,
-            corner_radius=0
-        )
-        self.topbar.grid_propagate(False)
-        self.statusbar.grid_propagate(False)
-        self.topbar.grid(row=0,column=0,sticky="ew")
-        self.mainframe.grid(row=1,column=0,sticky="nsew")
-        self.statusbar.grid(row=2,column=0,sticky="ew")
-        self.controlPanel.grid(
-            row=0,
-            column=0,
-            padx=(15,8),
-            pady = 15,
-            sticky="nsew"
         )
         self.previewPanel.grid(
             row=0,
@@ -135,8 +155,24 @@ class QRToolkit(ctk.CTk):
             pady=8,
             sticky="nsew"
         )
-        self.generateFrame.grid_columnconfigure(0, weight=1)
-        self.decodeFrame.grid_columnconfigure(0, weight=1)
+
+        # widgets for previewPanel
+        self.previewTitle = ctk.CTkLabel(
+            self.previewPanel,
+            text="Preview",
+            font=("Segoe UI", 22, "bold")
+        )
+        self.previewTitle.pack(pady=20)
+
+        self.previewLabel = ctk.CTkLabel(
+            self.previewPanel,
+            text="Generate a QR Code",
+            width=350,
+            height=350
+        )
+        self.previewLabel.pack(expand = True)
+
+        # Widgets in GenerateFrame
         self.generateLabel=ctk.CTkLabel(
             self.generateFrame,
             text="Generate",
@@ -165,7 +201,6 @@ class QRToolkit(ctk.CTk):
             self.generateFrame,
             placeholder_text="Enter Text or URL..."
         )
-
         self.dataEntry.grid(
             row=3,
             column=0,
@@ -184,6 +219,7 @@ class QRToolkit(ctk.CTk):
             padx=20,
             sticky="w"
         )
+
         self.foregroundMenu = ctk.CTkOptionMenu(
             self.generateFrame,
             values=[
@@ -201,6 +237,7 @@ class QRToolkit(ctk.CTk):
             pady=(5,15),
             sticky="ew"
         )
+
         self.backgroundlabel = ctk.CTkLabel(
             self.generateFrame,
             text="Background Color"
@@ -211,6 +248,7 @@ class QRToolkit(ctk.CTk):
             padx=20,
             sticky="w"
         )
+
         self.backgroundMenu = ctk.CTkOptionMenu(
             self.generateFrame,
             values=[
@@ -227,16 +265,11 @@ class QRToolkit(ctk.CTk):
             pady=(5,20),
             sticky="ew"
         )
+
         self.generateButton = ctk.CTkButton(
             self.generateFrame,
-            text="Generatate QR",
+            text="Generate QR",
             command=self.generateQR
-        )
-        self.saveButton = ctk.CTkButton(
-            self.generateFrame,
-            text="Save QR",
-            command=self.saveQR,
-            state="disabled"
         )
         self.generateButton.grid(
             row=10,
@@ -245,12 +278,21 @@ class QRToolkit(ctk.CTk):
             pady=(0,10),
             sticky="ew"
         )
+
+        self.saveButton = ctk.CTkButton(
+            self.generateFrame,
+            text="Save QR",
+            command=self.saveQR,
+            state="disabled"
+        )
         self.saveButton.grid(
             row=11,
             column=0,
             padx=20,
             sticky="ew"
         )
+
+        # widgets in decodeFrame
         self.decodeLabel = ctk.CTkLabel(
             self.decodeFrame,
             text="Decode",
@@ -263,6 +305,7 @@ class QRToolkit(ctk.CTk):
             pady=(20,10),
             sticky="w"
         )
+
         self.browseButton = ctk.CTkButton(
             self.decodeFrame,
             text="Browse Image",
@@ -275,6 +318,7 @@ class QRToolkit(ctk.CTk):
             pady=10,
             sticky="ew"
         )
+
         self.resultTextbox = ctk.CTkTextbox(
             self.decodeFrame,
             height=150
@@ -286,9 +330,11 @@ class QRToolkit(ctk.CTk):
             pady=10,
             sticky="ew"
         )
+
         self.copyButton = ctk.CTkButton(
             self.decodeFrame,
-            text="Copy Result"
+            text="Copy Result",
+            command=self.copyResult
         )
         self.copyButton.grid(
             row=3,
@@ -297,7 +343,7 @@ class QRToolkit(ctk.CTk):
             pady=10,
             sticky="ew"
         )
-        self.topbar.grid_columnconfigure(0, weight=1)
+
         self.titleLabel = ctk.CTkLabel(
             self.topbar,
             text="QR Toolkit",
@@ -311,10 +357,12 @@ class QRToolkit(ctk.CTk):
             sticky="w"
         )
 
+        # widgets in topbar
         self.aboutButton = ctk.CTkButton(
             self.topbar,
             text="About",
-            width=100
+            width=100,
+            command=self.showAbout
         )
         self.aboutButton.grid(
             row=0,
@@ -323,6 +371,7 @@ class QRToolkit(ctk.CTk):
             pady=10
         )
 
+        # widgets in statusbar
         self.statusLabel = ctk.CTkLabel(
             self.statusbar,
             text="Status: Ready",
@@ -337,11 +386,17 @@ class QRToolkit(ctk.CTk):
         self.showGenerate()
 
     def generateQR(self):
-        data = self.dataEntry.get()
-        fg=self.foregroundMenu.get()
-        bg=self.backgroundMenu.get()
 
-        image = generator.generateQR(data,fg,bg)
+        data = self.dataEntry.get().strip()
+        if not data:
+            self.statusLabel.configure(
+                text="Status: Please enter some text."
+            )
+            return
+        foreground=self.foregroundMenu.get()
+        background=self.backgroundMenu.get()
+
+        image = generator.generateQR(data,foreground,background)
         self.currentQR = image
         image = image.convert("RGB")
         preview = ctk.CTkImage(
@@ -400,6 +455,78 @@ class QRToolkit(ctk.CTk):
             fg_color="gray25"
         )
 
+    def showAbout(self):
+
+        about = ctk.CTkToplevel(self)
+
+        about.title("About QR Toolkit")
+        about.geometry("430x440")
+        about.resizable(False,False)
+
+        about.update_idletasks()
+
+        x = self.winfo_x() + (self.winfo_width() - about.winfo_width()) // 2
+        y = self.winfo_y() + (self.winfo_height() - about.winfo_height()) // 2
+        about.geometry(f"+{x}+{y}")
+
+        about.grab_set()
+
+        title = ctk.CTkLabel(
+            about,
+            text="QR Toolkit",
+            font=("Segoe UI", 26, "bold")
+        )
+        title.pack(pady=(25,5))
+
+        version = ctk.CTkLabel(
+            about,
+            text="Version 1.0",
+            font=("Segoe UI", 14)
+        )
+        version.pack()
+
+        description = ctk.CTkLabel(
+            about,
+            text=(
+                "A lightweight desktop application\n"
+                "for generating and decoding QR codes."
+            ),
+            justify="center"
+        )
+        description.pack(pady=20)
+
+        features = ctk.CTkLabel(
+            about,
+            text=(
+                "Features\n\n"
+                "✓ Generate QR Codes\n"
+                "✓ Decode QR Codes\n"
+                "✓ Save QR Images\n"
+                "✓ Live Preview"
+            ),
+            justify="left"
+        )
+        features.pack()
+
+        footer = ctk.CTkLabel(
+            about,
+            text=(
+                "\nDeveloped by\n"
+                "Prajwal\n\n"
+                "Python 3.12\n"
+                "CustomTkinter + OpenCV"
+            ),
+            justify="center"
+        )
+        footer.pack(pady=20)
+
+        close = ctk.CTkButton(
+            about,
+            text="Close",
+            command=about.destroy
+        )
+        close.pack(pady=10)
+
     def decodeQR(self):
         path=filedialog.askopenfilename(
             title="Select QR Code",
@@ -438,9 +565,14 @@ class QRToolkit(ctk.CTk):
             text="Status: QR Code Decoded Successfully"
         )
 
+    def copyResult(self):
+        pyperclip.copy(
+            self.resultTextbox.get("1.0", "end-1c")
+        )
+        self.statusLabel.configure(
+            text="Status: Copied to Clipboard"
+        )
 
 if __name__ == "__main__":
     app = QRToolkit()
     app.mainloop()
-
-
