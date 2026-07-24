@@ -1,1 +1,3 @@
 .venv
+.prettierrc
+src/__pycache__
