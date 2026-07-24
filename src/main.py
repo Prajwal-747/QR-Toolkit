@@ -1,3 +1,4 @@
+from PIL import Image
 import customtkinter as ctk
 from tkinter import filedialog
 import generator
@@ -29,13 +30,70 @@ class QRToolkit(ctk.CTk):
         self.mainframe.grid_rowconfigure(0, weight =1)
         self.mainframe.grid_columnconfigure(0, weight=1)
         self.mainframe.grid_columnconfigure(1, weight=2)
-        self.controlTabs = ctk.CTkTabview(
-            self.mainframe
+        self.controlPanel = ctk.CTkFrame(
+            self.mainframe,
+            corner_radius=10
         )
-        self.controlTabs.add("Generate")
-        self.controlTabs.add("Decode")
-        self.generateTab = self.controlTabs.tab("Generate")
-        self.decodeTab = self.controlTabs.tab("Decode")
+        self.controlPanel.grid_columnconfigure(0, weight=1)
+        self.controlPanel.grid_rowconfigure(1, weight=1)
+        self.navigationBar = ctk.CTkFrame(
+            self.controlPanel,
+            fg_color="transparent"
+        )
+        self.navigationBar.grid(
+            row=0,
+            column=0,
+            sticky="ew",
+            padx=10,
+            pady=10
+        )
+        self.navigationBar.grid_columnconfigure((0,1), weight=1)
+        self.generateTabButton = ctk.CTkButton(
+            self.navigationBar,
+            text="Generate",
+            command=self.showGenerate
+        )
+        self.generateTabButton.grid(
+            row = 0,
+            column = 0,
+            padx=(0,5),
+            sticky="ew"
+        )
+        self.decodeTabButton = ctk.CTkButton(
+            self.navigationBar,
+            text="Decode",
+            command=self.showDecode
+        )
+        self.decodeTabButton.grid(
+            row=0,
+            column=1,
+            padx=(5,0),
+            sticky="ew"
+        )
+        self.generateTabButton.configure(
+            fg_color="#1F6AA5"
+        )
+        self.decodeTabButton.configure(
+            fg_color="gray25"
+        )
+        self.generateFrame = ctk.CTkFrame(
+            self.controlPanel,
+            fg_color="transparent"
+        )
+        self.decodeFrame=ctk.CTkFrame(
+            self.controlPanel,
+            fg_color="transparent"
+        )
+        self.generateFrame.grid(
+            row=1,
+            column=0,
+            sticky="nsew"
+        )
+        self.decodeFrame.grid(
+            row=1,
+            column=0,
+            sticky="nsew"
+        )
         self.previewPanel = ctk.CTkFrame(
             self.mainframe,
             corner_radius=10
@@ -63,7 +121,7 @@ class QRToolkit(ctk.CTk):
         self.topbar.grid(row=0,column=0,sticky="ew")
         self.mainframe.grid(row=1,column=0,sticky="nsew")
         self.statusbar.grid(row=2,column=0,sticky="ew")
-        self.controlTabs.grid(
+        self.controlPanel.grid(
             row=0,
             column=0,
             padx=(15,8),
@@ -77,10 +135,10 @@ class QRToolkit(ctk.CTk):
             pady=8,
             sticky="nsew"
         )
-        self.generateTab.grid_columnconfigure(0, weight=1)
-        self.decodeTab.grid_columnconfigure(0, weight=1)
+        self.generateFrame.grid_columnconfigure(0, weight=1)
+        self.decodeFrame.grid_columnconfigure(0, weight=1)
         self.generateLabel=ctk.CTkLabel(
-            self.generateTab,
+            self.generateFrame,
             text="Generate",
             font=("Segoe UI", 22, "bold")
         )
@@ -93,7 +151,7 @@ class QRToolkit(ctk.CTk):
         )
 
         self.dataLabel=ctk.CTkLabel(
-            self.generateTab,
+            self.generateFrame,
             text="Data"
         )
         self.dataLabel.grid(
@@ -104,7 +162,7 @@ class QRToolkit(ctk.CTk):
         )
 
         self.dataEntry = ctk.CTkEntry(
-            self.generateTab,
+            self.generateFrame,
             placeholder_text="Enter Text or URL..."
         )
 
@@ -117,7 +175,7 @@ class QRToolkit(ctk.CTk):
         )
 
         self.foregroundlabel = ctk.CTkLabel(
-            self.generateTab,
+            self.generateFrame,
             text="Foreground Color"
         )
         self.foregroundlabel.grid(
@@ -127,7 +185,7 @@ class QRToolkit(ctk.CTk):
             sticky="w"
         )
         self.foregroundMenu = ctk.CTkOptionMenu(
-            self.generateTab,
+            self.generateFrame,
             values=[
                 "black",
                 "blue",
@@ -144,7 +202,7 @@ class QRToolkit(ctk.CTk):
             sticky="ew"
         )
         self.backgroundlabel = ctk.CTkLabel(
-            self.generateTab,
+            self.generateFrame,
             text="Background Color"
         )
         self.backgroundlabel.grid(
@@ -154,7 +212,7 @@ class QRToolkit(ctk.CTk):
             sticky="w"
         )
         self.backgroundMenu = ctk.CTkOptionMenu(
-            self.generateTab,
+            self.generateFrame,
             values=[
                 "white",
                 "black",
@@ -170,14 +228,15 @@ class QRToolkit(ctk.CTk):
             sticky="ew"
         )
         self.generateButton = ctk.CTkButton(
-            self.generateTab,
+            self.generateFrame,
             text="Generatate QR",
             command=self.generateQR
         )
         self.saveButton = ctk.CTkButton(
-            self.generateTab,
+            self.generateFrame,
             text="Save QR",
-            command=self.saveQR
+            command=self.saveQR,
+            state="disabled"
         )
         self.generateButton.grid(
             row=10,
@@ -193,7 +252,7 @@ class QRToolkit(ctk.CTk):
             sticky="ew"
         )
         self.decodeLabel = ctk.CTkLabel(
-            self.decodeTab,
+            self.decodeFrame,
             text="Decode",
             font=("Segoe UI", 22, "bold")
         )
@@ -205,8 +264,9 @@ class QRToolkit(ctk.CTk):
             sticky="w"
         )
         self.browseButton = ctk.CTkButton(
-            self.decodeTab,
-            text="Browse Image"
+            self.decodeFrame,
+            text="Browse Image",
+            command=self.decodeQR
         )
         self.browseButton.grid(
             row=1,
@@ -216,7 +276,7 @@ class QRToolkit(ctk.CTk):
             sticky="ew"
         )
         self.resultTextbox = ctk.CTkTextbox(
-            self.decodeTab,
+            self.decodeFrame,
             height=150
         )
         self.resultTextbox.grid(
@@ -227,7 +287,7 @@ class QRToolkit(ctk.CTk):
             sticky="ew"
         )
         self.copyButton = ctk.CTkButton(
-            self.decodeTab,
+            self.decodeFrame,
             text="Copy Result"
         )
         self.copyButton.grid(
@@ -273,6 +333,8 @@ class QRToolkit(ctk.CTk):
             padx=15,
             pady=5
         )
+        
+        self.showGenerate()
 
     def generateQR(self):
         data = self.dataEntry.get()
@@ -294,6 +356,7 @@ class QRToolkit(ctk.CTk):
         self.statusLabel.configure(
             text="Status: QR Code Generated Successfully"
         )
+        self.saveButton.configure(state="normal")
         self.previewLabel.image = preview
         
     def saveQR(self):
@@ -318,6 +381,63 @@ class QRToolkit(ctk.CTk):
             self.statusLabel.configure(
                 text="Status: QR Code Saved Successfully"
             )
+
+    def showGenerate(self):
+        self.generateFrame.tkraise()
+        self.generateTabButton.configure(
+            fg_color=("blue", "#1F6AA5")
+        )
+        self.decodeTabButton.configure(
+            fg_color="gray25"
+        )
+
+    def showDecode(self):
+        self.decodeFrame.tkraise()
+        self.decodeTabButton.configure(
+            fg_color=("blue", "#1F6AA5")
+        )
+        self.generateTabButton.configure(
+            fg_color="gray25"
+        )
+
+    def decodeQR(self):
+        path=filedialog.askopenfilename(
+            title="Select QR Code",
+            filetypes=[
+                ("Images", "*.png *.jpg *.jpeg *.bmp")
+            ]
+        )
+
+        if not path:
+            return
+
+        data = decoder.decodeQR(path)
+
+        if not data:
+            self.statusLabel.configure(
+                text="Status: No QR Code found in image."
+            )
+            return
+
+        self.resultTextbox.delete("1.0","end")
+        self.resultTextbox.insert("1.0",data)
+
+        image = Image.open(path)
+        preview = ctk.CTkImage(
+            light_image=image,
+            dark_image=image,
+            size=(300,300)
+        )
+        self.previewLabel.configure(
+            image=preview,
+            text=""
+        )
+        self.previewLabel.image = preview
+
+        self.statusLabel.configure(
+            text="Status: QR Code Decoded Successfully"
+        )
+
 
 if __name__ == "__main__":
     app = QRToolkit()

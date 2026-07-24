@@ -4,4 +4,6 @@ def decodeQR(path):
     image = cv2.imread(path)
     detector = cv2.QRCodeDetector()
     data,points,_ = detector.detectAndDecode(image)
+    print(data)
+    print(points)
     return data
