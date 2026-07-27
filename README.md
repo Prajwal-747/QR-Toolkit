@@ -55,7 +55,7 @@ A lightweight desktop application for generating and decoding QR codes with a cl
 
 ```bash
 git clone https://github.com/Prajwal-747/QR-Toolkit
-cd qr-toolkit
+cd QR-Toolkit
 ```
 
 #### Create a virtual environment
@@ -110,6 +110,17 @@ The executable will be located in
 dist/
 └── QRToolkit.exe
 ```
+
+## Tech Stack
+
+- Python 3.12
+- CustomTkinter
+- qrcode
+- Pillow (PIL)
+- OpenCV
+- tkinter
+- os
+- PyInstaller
 
 ## Author
 
