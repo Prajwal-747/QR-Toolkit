@@ -54,7 +54,7 @@ A lightweight desktop application for generating and decoding QR codes with a cl
 #### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/qr-toolkit.git
+git clone https://github.com/Prajwal-747/QR-Toolkit
 cd qr-toolkit
 ```
 
